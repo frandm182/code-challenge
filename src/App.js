@@ -3,6 +3,7 @@ import request from './request';
 import { ARTICLES_QUERY } from './queries';
 import Header from './components/header';
 import Footer from './components/footer';
+import Articles from './components/articles/Articles';
 
 class App extends Component {
   constructor(props) {
@@ -17,14 +18,11 @@ class App extends Component {
     });
   }
   render() {
-    const articles = this.state.articles.map(article => (<div className="album" key={article.id}><div>{article.title}</div><div>{article.author}</div><div >{article.excerpt}</div></div>));
+    const { articles } = this.state;
     return (
       <div className="App">
         <Header />
-        <div className="content">
-          <h2>Billin code challenge</h2>
-          <div>{articles}</div>
-        </div>
+        <Articles articles={articles} />
         <Footer />
       </div>
     );
