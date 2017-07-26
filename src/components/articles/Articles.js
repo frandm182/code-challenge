@@ -1,8 +1,6 @@
-import React, { Component } from 'react';
-import request from '../../request';
-import { ARTICLES_QUERY } from '../../queries';
+import React from 'react';
 import Article from './Article';
-
+import PropTypes from 'prop-types';
 
 const Articles = ({ articles }) =>
   <div className="App">
@@ -10,4 +8,8 @@ const Articles = ({ articles }) =>
       <section>{articles.map(article => (<Article article={article} />))}</section>
     </div>
   </div>;
+
+Articles.PropTypes = {
+  articles: PropTypes.arrayOf,
+};
 export default Articles;

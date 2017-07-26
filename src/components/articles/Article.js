@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const Article = ({ article }) =>
   <article>
@@ -7,5 +8,7 @@ const Article = ({ article }) =>
     <p>{article.excerpt}</p>
     <a href="#" className="readmore">Read more</a>
   </article>;
-
+Article.PropTypes = {
+  article: PropTypes.objectOf,
+};
 export default Article;
