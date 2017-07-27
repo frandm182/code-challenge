@@ -6,3 +6,4 @@ export const ARTICLES_QUERY = `{
     title
   }
 }`;
+

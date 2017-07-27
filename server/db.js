@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import Faker from 'faker';
 import mongoose from 'mongoose';
+import bluebird from 'bluebird';
+
+mongoose.Promise = bluebird;
 
 mongoose.connect('mongodb://localhost/billin');
 mongoose.set('debug', true);

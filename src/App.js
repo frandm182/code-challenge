@@ -1,32 +1,13 @@
-import React, { Component } from 'react';
-import request from './request';
-import { ARTICLES_QUERY } from './queries';
-import Header from './components/header';
+import React from 'react';
 import Footer from './components/footer';
-import Articles from './components/articles/Articles';
+import Header from './components/header';
+import Main from './components/main';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      articles: [],
-    };
-  }
-  componentWillMount() {
-    request(ARTICLES_QUERY).then(response => {
-      this.setState({ articles: response.data.articles });
-    });
-  }
-  render() {
-    const { articles } = this.state;
-    return (
-      <div className="App">
-        <Header />
-        <Articles articles={articles} />
-        <Footer />
-      </div>
-    );
-  }
-}
-
+const App = () => (
+  <div>
+    <Header />
+    <Main />
+    <Footer />
+  </div>
+);
 export default App;

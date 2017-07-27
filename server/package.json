@@ -12,6 +12,7 @@
   "dependencies": {
     "babel-preset-node5": "^11.1.0",
     "babel-register": "^6.16.3",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "express": "^4.14.0",
     "express-graphql": "^0.5.3",

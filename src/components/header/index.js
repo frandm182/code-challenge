@@ -2,7 +2,7 @@ import React from 'react';
 
 const Header = () =>
   <header>
-    <h1><a href="index.html">Billin code challenge</a></h1>
+    <h1><a href="/">Billin code challenge</a></h1>
     <nav>
       <ul />
     </nav>

@@ -2,11 +2,9 @@ import React from 'react';
 import Article from './Article';
 import PropTypes from 'prop-types';
 
-const Articles = ({ articles }) =>
-  <div className="App">
-    <div className="secwrapper">
-      <section>{articles.map(article => (<Article article={article} />))}</section>
-    </div>
+const Articles = ({ articleList }) =>
+  <div className="secwrapper">
+    <section>{articleList.map(article => (<Article key={article.id} article={article} />))}</section>
   </div>;
 
 Articles.PropTypes = {
