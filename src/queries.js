@@ -7,3 +7,11 @@ export const ARTICLES_QUERY = `{
   }
 }`;
 
+export const ARTICLE_QUERY = `{
+  article(id: "#") {
+    author
+    excerpt
+    id
+    title
+  }
+}`;

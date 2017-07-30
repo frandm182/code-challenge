@@ -4,12 +4,12 @@ import {
   GraphQLString,
   GraphQLList,
   GraphQLSchema,
+  GraphQLID,
 } from 'graphql';
 import db from './db';
 
 const articleType = new GraphQLObjectType({
   name: 'Article',
-  description: 'This represents a Article',
   fields: () => ({
     author: {
       type: GraphQLString,
@@ -37,25 +37,22 @@ const articleType = new GraphQLObjectType({
 
 const Query = new GraphQLObjectType({
   name: 'Query',
-  description: 'This is a root query',
-  fields: () => ({
+  fields: {
     articles: {
       type: new GraphQLList(articleType),
-      resolve() {
-        return db.Article.find();
+      resolve(p) {
+        return db.Article.find({});
       },
     },
     article: {
-      type: new GraphQLList(articleType),
-      args: { id: {
-        type: GraphQLString,
-      } },
-      resolve() {
-        console.log('hola');
-        return db.Article.find({ published: true });
+      type: articleType,
+      args: {id: { type: GraphQLID }},
+      resolve(parentValue,args) {
+        console.log(args.id);
+        return db.Article.find({_id: args.id});
       },
     },
-  }),
+  },
 });
 
 const Schema = new GraphQLSchema({

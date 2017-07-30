@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import request from '../../request';
+import { ARTICLE_QUERY } from '../../queries';
 
-const ArticleForm = ({ match }) =>
+class ArticleForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      id: null,
+    };
+  }
 
-match.params && match.params.id ?
-  <article>
-    <h2>{ match.params.id }</h2>
-  </article> : <article />;
+  componentWillMount() {
+    let query = ARTICLE_QUERY;
+    query = query.replace('#',this.props.match.params.id);
+     request(query).then(response => {
+      this.setState({ article: response.data.article });
+    });
+  }
+
+  render() {
+    return (this.state.id ?
+      <article>
+        <h2>{ this.state.id }</h2>
+      </article> : <article />);
+  }
+}
 
 ArticleForm.PropTypes = {
   match: PropTypes.objectOf,

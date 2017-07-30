@@ -10,7 +10,7 @@ const Article = ({ article }) =>
     <h2>{article.title}</h2>
     <h1>{article.author}</h1>
     <p>{article.excerpt}</p>
-    <Link to={{ pathname: `/article/${article.id}`, params: { id: article.id } }}>Read more</Link>
+    <Link to={{ pathname: `/${article.id}`, params: { id: article.id } }}>Read more</Link>
   </article>;
 
 Article.PropTypes = {
