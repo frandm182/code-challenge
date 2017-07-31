@@ -14,10 +14,10 @@ const Article = mongoose.model('Article', {
   excerpt: String,
   published: Boolean,
   tags: [String],
-  title: String,
+  title: String
 });
 
-Article.remove({}, (err) => {
+/*Article.remove({}, (err) => {
   if (!err) {
     _.times(10, () => {
       const content = `
@@ -33,10 +33,10 @@ ${Faker.lorem.paragraphs()}
         excerpt: content.slice(0, 350),
         published: Faker.random.boolean(),
         tags: [Faker.random.words(), Faker.random.words()],
-        title: Faker.name.title(),
+        title: Faker.name.title()
       });
     });
   }
-});
+});*/
 
 export default { Article };
