@@ -118,4 +118,36 @@ footer{
 footer p{
 	margin: 5px 0 0 12%;
 }
+input,textarea {
+	width: 100%;
+}
+input.checkbox {
+	width:auto;
+	margin-left: 5px;
+}
 
+.button{
+    padding: 3px;
+    display: inline-block;
+    border-radius: 2px;
+    font-family: "Arial";
+    border: 0;
+    margin: 5px 0px;
+    background: #525252;
+    font-size: 15px;
+    line-height: 15px;
+    color: white;
+    width: auto;
+    height: auto;
+    box-sizing: content-box;
+}
+.button.save {
+	background: #54bb1f;
+}
+.button.update {
+	background: #525252;
+}
+.button.delete {
+	background: #ff4f46;
+	margin-left: 5px;
+}

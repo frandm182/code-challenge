@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import request from '../../request';
-import { ARTICLES_QUERY } from '../../queries';
 import Articles from '../articles/Articles';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {getArticles} from '../.././actions';
 
 class Home extends Component {
   constructor(props) {
@@ -10,19 +11,18 @@ class Home extends Component {
       articles: [],
     };
   }
-  componentWillMount() {
-    request(ARTICLES_QUERY).then(response => {
-      this.setState({ articles: response.data.articles });
-    });
+  componentDidMount() {
+    this.props.getArticles();
   }
   render() {
-    const { articles } = this.state;
+    console.log("home", this.props.articles);
     return (
       <div>
-        <Articles articleList={articles} />
+        <Articles articleList={this.props.articles} />
       </div>
     );
   }
 }
-
-export default Home;
+const mapStateToProps = state => { return {articles: state.articles.articles}}
+const mapDispatchToProps = dispatch => bindActionCreators({getArticles},dispatch);
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

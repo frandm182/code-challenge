@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {getArticle, updateArticle, saveArticle} from '../.././actions';
+import {DELETE_QUERY } from '../../queries';
 import request from '../../request';
-import { ARTICLE_QUERY, EDIT_QUERY, DELETE_QUERY } from '../../queries';
-
 class ArticleForm extends Component {
   constructor(props) {
     super(props);
@@ -13,7 +15,8 @@ class ArticleForm extends Component {
         title: true,
         excerpt: true,
         content: true
-      }
+      },
+      message: ''
     };
     this.onChangeAuthor = this.onChangeAuthor.bind(this);
     this.onEditAuthor = this.onEditAuthor.bind(this);
@@ -28,17 +31,13 @@ class ArticleForm extends Component {
     this.delete = this.delete.bind(this);    
   }
 
-  componentWillMount() {
-    let query = ARTICLE_QUERY;
-    query = query.replace('#',this.props.match.params.id);
-     request(query).then(response => {
-      this.setState({ article: response.data.article });
-    });
+  componentWillMount() {   
+      this.props.getArticle(this.props.match.params.id);      
   }
   onChangeAuthor(e) {
-    let newArticle = this.state.article;
+    let newArticle = this.props.article;
     newArticle.author = e.target.value;
-    this.setState({ article: newArticle });
+    this.props.updateArticle(newArticle);
   }
   onEditAuthor() {    
     let newEdit = this.state.editMode;
@@ -46,9 +45,9 @@ class ArticleForm extends Component {
     this.setState({ editMode: newEdit });
   }
   onChangeTitle(e) {
-    let newArticle = this.state.article;
+    let newArticle = this.props.article;
     newArticle.title = e.target.value;
-    this.setState({ article: newArticle });
+    this.props.updateArticle(newArticle);
   }
   onEditTitle() {    
     let newEdit = this.state.editMode;
@@ -56,9 +55,9 @@ class ArticleForm extends Component {
     this.setState({ editMode: newEdit });
   }
   onChangeExcerpt(e) {
-    let newArticle = this.state.article;
+    let newArticle = this.props.article;
     newArticle.excerpt = e.target.value;
-    this.setState({ article: newArticle });
+    this.props.updateArticle(newArticle);
   }
   onEditExcerpt() {
     let newEdit = this.state.editMode;
@@ -66,9 +65,9 @@ class ArticleForm extends Component {
     this.setState({ editMode: newEdit });
   }
   onChangeContent(e) {
-    let newArticle = this.state.article;
+    let newArticle = this.props.article;
     newArticle.content = e.target.value;
-    this.setState({ article: newArticle });
+    this.props.updateArticle(newArticle);
   }
   onEditContent() {    
     let newEdit = this.state.editMode;
@@ -77,60 +76,67 @@ class ArticleForm extends Component {
   }
   
   onChangePublished(e) {
-    var newArticle = this.state.article;
-    newArticle.published = this.state.article.published ? false : true;
-    this.setState({ article: newArticle });
+    var newArticle = this.props.article;
+    newArticle.published = this.props.article.published ? false : true;
+    this.props.updateArticle(newArticle);
   }
 
+  showMessage(text) {
+    this.setState({message: text})
+    setTimeout(()=> this.setState({message: ''}),2000);
+  }
   save() {
-    let query = EDIT_QUERY;
-    query = query.replace('#id',this.state.article.id);
-    query = query.replace('#author',this.state.article.author);
-    query = query.replace('#excerpt',this.state.article.excerpt.replace(/(\r\n|\n|\r)/gm,""));
-    query = query.replace('#content',this.state.article.content.replace(/(\r\n|\n|\r)/gm,""));
-    query = query.replace('#title',this.state.article.title);
-    query = query.replace('#published',this.state.article.published);
-     request(query).then(response => {
-      console.log("created",response.data)
-    });
+    this.props.saveArticle(this.props.article);
+    this.showMessage("Article updated");
   }
 
   delete() {
     let query = DELETE_QUERY;
-    query = query.replace('#id',this.state.article.id);
+    query = query.replace('#id',this.props.article.id);
     request(query).then(response => {
-      console.log("deleted",response.data)
+      this.showMessage("Article removed");
+      
     });
   }
+  
   render() {
-    return (this.state.article ?
+    return (this.props.article.author ?
       <article>
         <div>
-          <input type="text" disabled={this.state.editMode.author} value={this.state.article.author} onChange={this.onChangeAuthor} />{this.state.editMode.author? <span onClick={this.onEditAuthor}>edit</span>:<span onClick={this.onEditAuthor}>block</span>}
+          Author
+          <input type="text" disabled={this.state.editMode.author} value={this.props.article.author} onChange={this.onChangeAuthor} />{this.state.editMode.author ? <span className="button" onClick={this.onEditAuthor}>edit</span>:<span className="button save" onClick={this.onEditAuthor}>save</span>}
         </div>
         <div>
-          <input type="text" disabled={this.state.editMode.title} value={this.state.article.title} onChange={this.onChangeTitle} />{this.state.editMode.title? <span onClick={this.onEditTitle}>edit</span>:<span onClick={this.onEditTitle}>block</span>}
+          Title
+          <input type="text" disabled={this.state.editMode.title} value={this.props.article.title} onChange={this.onChangeTitle} />{this.state.editMode.title ? <span className="button" onClick={this.onEditTitle}>edit</span>:<span className="button save" onClick={this.onEditTitle}>save</span>}
         </div>
         <div>
-          <textarea rows="4" cols="50"  disabled={this.state.editMode.excerpt} value={this.state.article.excerpt} onChange={this.onChangeExcerpt} />{this.state.editMode.excerpt? <span onClick={this.onEditExcerpt}>edit</span>:<span onClick={this.onEditExcerpt}>block</span>}
+          Excerpt
+          <textarea rows="6" cols="50"  disabled={this.state.editMode.excerpt} value={this.props.article.excerpt} onChange={this.onChangeExcerpt} />{this.state.editMode.excerpt? <span className="button" onClick={this.onEditExcerpt}>edit</span>:<span className="button save" onClick={this.onEditExcerpt}>save</span>}
         </div>
         <div>
-          <textarea rows="4" cols="50" disabled={this.state.editMode.content} value={this.state.article.content} onChange={this.onChangeContent} />{this.state.editMode.content? <span onClick={this.onEditContent}>edit</span>:<span onClick={this.onEditContent}>block</span>}
-
+          Content
+          <textarea rows="6" cols="50" disabled={this.state.editMode.content} value={this.props.article.content} onChange={this.onChangeContent} />{this.state.editMode.content? <span className="button" onClick={this.onEditContent}>edit</span>:<span className="button save" onClick={this.onEditContent}>save</span>}
         </div>
          <div>
-          <input type="checkbox" checked={this.state.article.published} onChange={this.onChangePublished}  />
+           Published
+          <input type="checkbox" className="checkbox" checked={this.props.article.published} onChange={this.onChangePublished}  />
         </div>
-        <button onClick={this.save}>Save</button>
-        <button onClick={this.delete}>Delete</button>
+        <button className="button update" onClick={this.save}>Update</button><button  className="button delete" onClick={this.delete}>Delete</button>       
+        <span>{this.state.message}</span>
       </article> : <article />);
   }
 }
 
 ArticleForm.PropTypes = {
   match: PropTypes.objectOf,
+  create: PropTypes.bool
 };
 ArticleForm.default = {
   match: {},
+  create: false
 };
-export default ArticleForm;
+
+const mapStateToProps = state => { return {article: state.articles.article}}
+const mapDispatchToProps = dispatch => bindActionCreators({getArticle,updateArticle,saveArticle},dispatch);
+export default connect(mapStateToProps, mapDispatchToProps)(ArticleForm);
