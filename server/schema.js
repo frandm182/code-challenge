@@ -6,7 +6,7 @@ import {
   GraphQLSchema,
   GraphQLID,
   GraphQLNumber,
-  GraphQLNonNull
+  GraphQLNonNull,
 } from 'graphql';
 import db from './db';
 
@@ -34,9 +34,9 @@ const Query = new GraphQLObjectType({
     },
     article: {
       type: articleType,
-      args: {id: { type: GraphQLID }},
-      resolve(parentValue,{id}) {
-        return db.Article.findOne({_id: id});
+      args: { id: { type: GraphQLID } },
+      resolve(parentValue, { id }) {
+        return db.Article.findOne({ _id: id });
       },
     },
   },
@@ -52,42 +52,42 @@ const mutation = new GraphQLObjectType({
         excerpt: { type: GraphQLString },
         published: { type: GraphQLBoolean },
         tags: { type: new GraphQLList(GraphQLString) },
-        title: { type: new GraphQLNonNull(GraphQLString) }
+        title: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve(parentValue, {author, content, excerpt, published, tags, title}) {
-        return db.Article.create({ author, content, excerpt,published, tags, title });
-      }
+      resolve(parentValue, { author, content, excerpt, published, tags, title }) {
+        return db.Article.create({ author, content, excerpt, published, tags, title });
+      },
     },
     deleteArticle: {
       type: articleType,
-      args: { 
-        id: { type: new GraphQLNonNull(GraphQLID) }
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve(parentValue, {id}) {
-        return db.Article.remove({_id: id});
-      }
+      resolve(parentValue, { id }) {
+        return db.Article.remove({ _id: id });
+      },
     },
     editArticle: {
       type: articleType,
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         author: { type: GraphQLString },
-        content: { type: GraphQLString},
+        content: { type: GraphQLString },
         excerpt: { type: GraphQLString },
         published: { type: GraphQLBoolean },
-        tags: { type: GraphQLString },
-        title: { type: GraphQLString }
+        tags: { type: new GraphQLList(GraphQLString) },
+        title: { type: GraphQLString },
       },
-      resolve(parentValue, {author, content, excerpt, published, tags, title, id}) {        
-        return db.Article.findOneAndUpdate({_id: id},{ author, content, excerpt, published, tags, title });
-      }
-    }
-  }
-})
+      resolve(parentValue, { author, content, excerpt, published, tags, title, id }) {
+        return db.Article.findOneAndUpdate({ _id: id }, { author, content, excerpt, published, tags, title });
+      },
+    },
+  },
+});
 
 const Schema = new GraphQLSchema({
   query: Query,
-  mutation: mutation
+  mutation,
 });
 
 export default Schema;
