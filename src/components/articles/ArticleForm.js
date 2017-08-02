@@ -2,93 +2,74 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {getArticle, updateArticle, saveArticle} from '../.././actions';
+import {findDOMNode} from 'react-dom';
+import {getArticle, updateArticle, saveArticle, changeArticle} from '../.././actions';
 import {DELETE_QUERY } from '../../queries';
 import request from '../../request';
+import Tags from '../tags';
+
 class ArticleForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       id: null,
-      editMode: {
-        author: true,
-        title: true,
-        excerpt: true,
-        content: true
-      },
-      message: ''
+      editMode: false,
+      message: '',
+      isCreating: false
     };
-    this.onChangeAuthor = this.onChangeAuthor.bind(this);
-    this.onEditAuthor = this.onEditAuthor.bind(this);
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onEditTitle = this.onEditTitle.bind(this);
-    this.onChangePublished = this.onChangePublished.bind(this);    
-    this.onChangeExcerpt = this.onChangeExcerpt.bind(this);
-    this.onEditExcerpt = this.onEditExcerpt.bind(this);
-    this.onChangeContent = this.onChangeContent.bind(this);
-    this.onEditContent = this.onEditContent.bind(this);
-    this.save = this.save.bind(this);
-    this.delete = this.delete.bind(this);    
+    this.onEdit = this.onEdit.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.showMessage = this.showMessage.bind(this);
+    this.delete = this.delete.bind(this);  
+    this.onRemoveTag = this.onRemoveTag.bind(this);    
+    this.onChangeInput = this.onChangeInput.bind(this); 
+    this.onAddClick = this.onAddClick.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onKeyPress = this.onKeyPress.bind(this);
   }
 
   componentWillMount() {   
       this.props.getArticle(this.props.match.params.id);      
   }
-  onChangeAuthor(e) {
-    let newArticle = this.props.article;
-    newArticle.author = e.target.value;
-    this.props.updateArticle(newArticle);
+
+
+  handleSubmit() {
+    const article = {
+      id: this.props.article.id,
+      author: findDOMNode(this.refs.author).value,
+      title: findDOMNode(this.refs.title).value,
+      excerpt: findDOMNode(this.refs.excerpt).value,
+      content: findDOMNode(this.refs.content).value, 
+      published: this.refs.published.checked,
+      tags: this.props.article.tags  
+    };
+    this.props.saveArticle(article);
+    this.setState({editMode: !this.state.editMode});
+    this.showMessage("Article updated");
   }
-  onEditAuthor() {    
-    let newEdit = this.state.editMode;
-    newEdit.author = this.state.editMode.author ? false : true;
-    this.setState({ editMode: newEdit });
+
+  onChangeInput() {
+    const article = {
+      id: this.props.article.id,
+      author: findDOMNode(this.refs.author).value,
+      title: findDOMNode(this.refs.title).value,
+      excerpt: findDOMNode(this.refs.excerpt).value,
+      content: findDOMNode(this.refs.content).value, 
+      published: this.refs.published.checked,
+      tags: this.props.article.tags  
+    };
+    this.props.changeArticle(article);
   }
-  onChangeTitle(e) {
-    let newArticle = this.props.article;
-    newArticle.title = e.target.value;
-    this.props.updateArticle(newArticle);
-  }
-  onEditTitle() {    
-    let newEdit = this.state.editMode;
-    newEdit.title = this.state.editMode.title ? false : true;
-    this.setState({ editMode: newEdit });
-  }
-  onChangeExcerpt(e) {
-    let newArticle = this.props.article;
-    newArticle.excerpt = e.target.value;
-    this.props.updateArticle(newArticle);
-  }
-  onEditExcerpt() {
-    let newEdit = this.state.editMode;
-    newEdit.excerpt = this.state.editMode.excerpt ? false : true;
-    this.setState({ editMode: newEdit });
-  }
-  onChangeContent(e) {
-    let newArticle = this.props.article;
-    newArticle.content = e.target.value;
-    this.props.updateArticle(newArticle);
-  }
-  onEditContent() {    
-    let newEdit = this.state.editMode;
-    newEdit.content = this.state.editMode.content ? false : true;
-    this.setState({ editMode: newEdit });
-  }
-  
-  onChangePublished(e) {
-    var newArticle = this.props.article;
-    newArticle.published = this.props.article.published ? false : true;
-    this.props.updateArticle(newArticle);
+
+   onEdit() {
+    this.setState({editMode: !this.state.editMode});
   }
 
   showMessage(text) {
     this.setState({message: text})
     setTimeout(()=> this.setState({message: ''}),2000);
   }
-  save() {
-    this.props.saveArticle(this.props.article);
-    this.showMessage("Article updated");
-  }
+ 
 
   delete() {
     let query = DELETE_QUERY;
@@ -98,31 +79,81 @@ class ArticleForm extends Component {
       
     });
   }
+
+  onRemoveTag(text) {
+    const newArticle = Object.assign({}, this.props.article);
+    const index = newArticle.tags.findIndex(t => t === text);
+    const tags = newArticle.tags;
+    newArticle.tags = [...tags.slice(0, index), ...tags.slice(index + 1)];
+    this.props.changeArticle(newArticle);
+  }
+
+  onAddClick() {
+    this.setState(() => ({
+      isCreating: true
+    }));
+  }
   
+  onKeyPress(event) {
+    if (event.which === 13) {
+      this.setState(() => ({
+        isCreating: false
+      }));
+      const newArticle = Object.assign({}, this.props.article);
+      newArticle.tags = newArticle.tags ? newArticle.tags.concat(event.currentTarget.value) : [event.currentTarget.value];
+      this.props.changeArticle(newArticle);
+    }
+  }
+  onSave(ev) {
+
+    
+  }
+
+    
   render() {
+    const tags = this.props.article && this.props.article.tags && this.props.article.tags.map((tag, i) =>
+            <ul className="tags"><Tags key={i}  onRemoveClick={this.onRemoveTag}>{tag}</Tags></ul>
+          );
     return (this.props.article.author ?
       <article>
         <div>
           Author
-          <input type="text" disabled={this.state.editMode.author} value={this.props.article.author} onChange={this.onChangeAuthor} />{this.state.editMode.author ? <span className="button" onClick={this.onEditAuthor}>edit</span>:<span className="button save" onClick={this.onEditAuthor}>save</span>}
+          <input type="text" disabled={!this.state.editMode} value={this.props.article.author} onChange={this.onChangeInput} ref="author"/>
         </div>
         <div>
           Title
-          <input type="text" disabled={this.state.editMode.title} value={this.props.article.title} onChange={this.onChangeTitle} />{this.state.editMode.title ? <span className="button" onClick={this.onEditTitle}>edit</span>:<span className="button save" onClick={this.onEditTitle}>save</span>}
+          <input type="text" disabled={!this.state.editMode} value={this.props.article.title} onChange={this.onChangeInput}  ref="title" />
         </div>
         <div>
           Excerpt
-          <textarea rows="6" cols="50"  disabled={this.state.editMode.excerpt} value={this.props.article.excerpt} onChange={this.onChangeExcerpt} />{this.state.editMode.excerpt? <span className="button" onClick={this.onEditExcerpt}>edit</span>:<span className="button save" onClick={this.onEditExcerpt}>save</span>}
+          <textarea rows="6" cols="50"  disabled={!this.state.editMode} value={this.props.article.excerpt} onChange={this.onChangeInput}   ref="excerpt" />
         </div>
         <div>
           Content
-          <textarea rows="6" cols="50" disabled={this.state.editMode.content} value={this.props.article.content} onChange={this.onChangeContent} />{this.state.editMode.content? <span className="button" onClick={this.onEditContent}>edit</span>:<span className="button save" onClick={this.onEditContent}>save</span>}
+          <textarea rows="6" cols="50" disabled={!this.state.editMode} value={this.props.article.content} onChange={this.onChangeInput}   ref="content" />
         </div>
          <div>
            Published
-          <input type="checkbox" className="checkbox" checked={this.props.article.published} onChange={this.onChangePublished}  />
+          <input type="checkbox" disabled={!this.state.editMode} className="checkbox" checked={this.props.article.published} onChange={this.onChangeInput}   ref="published" />
         </div>
-        <button className="button update" onClick={this.save}>Update</button><button  className="button delete" onClick={this.delete}>Delete</button>       
+        <div>
+          {tags}  
+          {this.state.editMode ? 
+              this.state.isCreating ? 
+                <input type="text"
+                  onKeyPress={this.onKeyPress}
+                />
+              : <div onClick={this.onAddClick}>
+                  +
+                </div> 
+              : <div></div>  
+            }
+        </div>
+        {
+          this.state.editMode ? 
+          <div><span className="button update"  onClick={this.handleSubmit}>Update</span><span className="button update" onClick={this.onEdit}>Cancel</span></div> :
+          <div><span className="button" onClick={this.onEdit}>Edit</span></div>
+        }    
         <span>{this.state.message}</span>
       </article> : <article />);
   }
@@ -138,5 +169,5 @@ ArticleForm.default = {
 };
 
 const mapStateToProps = state => { return {article: state.articles.article}}
-const mapDispatchToProps = dispatch => bindActionCreators({getArticle,updateArticle,saveArticle},dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({getArticle,updateArticle,saveArticle,changeArticle},dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(ArticleForm);

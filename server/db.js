@@ -17,7 +17,7 @@ const Article = mongoose.model('Article', {
   title: String
 });
 
-/*Article.remove({}, (err) => {
+Article.remove({}, (err) => {
   if (!err) {
     _.times(10, () => {
       const content = `
@@ -27,6 +27,7 @@ ${Faker.lorem.paragraphs()}
 ${Faker.lorem.paragraphs()}
 ${Faker.lorem.paragraphs()}
 `;
+console.log('paso');
       return Article.create({
         author: Faker.name.findName(),
         content,
@@ -37,6 +38,6 @@ ${Faker.lorem.paragraphs()}
       });
     });
   }
-});*/
+});
 
 export default { Article };

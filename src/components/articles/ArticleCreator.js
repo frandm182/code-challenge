@@ -79,23 +79,23 @@ class ArticleForm extends Component {
       <article>
         <div>
           Author
-          <input type="text" value={this.state.article.author} onChange={this.onChangeAuthor} />
+          <input type="text" value={this.state.article.author} onChange={this.onChangeAuthor} ref="author" />
         </div>
         <div>
           Title
-          <input type="text"  value={this.state.article.title} onChange={this.onChangeTitle} />
+          <input type="text"  value={this.state.article.title} onChange={this.onChangeTitle} ref="title" />
         </div>
         <div>
           Excerpt
-          <textarea rows="6" cols="50"   value={this.state.article.excerpt} onChange={this.onChangeExcerpt} />
+          <textarea rows="6" cols="50"   value={this.state.article.excerpt} onChange={this.onChangeExcerpt} ref="excerpt" />
         </div>
         <div>
           Content
-          <textarea rows="6" cols="50"  value={this.state.article.content} onChange={this.onChangeContent} />
+          <textarea rows="6" cols="50"  value={this.state.article.content} onChange={this.onChangeContent}ref="content"  />
         </div>
          <div>
            Published
-          <input type="checkbox" className="checkbox" checked={this.state.article.published} onChange={this.onChangePublished}  />
+          <input type="checkbox" className="checkbox" checked={this.state.article.published} onChange={this.onChangePublished} ref="published"  />
         </div>        
         <button className="button update" onClick={this.create}>Create</button>
         <span>{this.state.message}</span>
