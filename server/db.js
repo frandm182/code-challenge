@@ -27,7 +27,6 @@ ${Faker.lorem.paragraphs()}
 ${Faker.lorem.paragraphs()}
 ${Faker.lorem.paragraphs()}
 `;
-console.log('paso');
       return Article.create({
         author: Faker.name.findName(),
         content,

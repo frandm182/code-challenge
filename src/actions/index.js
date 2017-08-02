@@ -1,6 +1,6 @@
 
 import request from '../request';
-import { ARTICLE_QUERY, ARTICLES_QUERY, EDIT_QUERY, DELETE_QUERY } from '../queries';
+import { ARTICLE_QUERY, ARTICLES_QUERY, EDIT_QUERY, DELETE_QUERY, CREATE_ARTICLE_QUERY } from '../queries';
 
 export const GET_ARTICLE = 'GET_ARTICLE';
 export const GET_ARTICLES = 'GET_ARTICLES';
@@ -8,6 +8,9 @@ export const UPDATE_ARTICLE = 'UPDATE_ARTICLE';
 export const SAVE_ARTICLE = 'SAVE_ARTICLE';
 export const DELETE_ARTICLE = 'DELETE_ARTICLE';
 export const CHANGE_ARTICLE = 'CHANGE_ARTICLE';
+export const EMPTY_ARTICLE = 'EMPTY_ARTICLE';
+export const CREATE_QUERY = 'CREATE_QUERY';
+
 
 export function getArticle(id) {
   let query = ARTICLE_QUERY;
@@ -15,6 +18,12 @@ export function getArticle(id) {
   return dispatch => {
     request(query)
         .then(response => { dispatch({ type: GET_ARTICLE, payload: response.data.article }); });
+  };
+}
+
+export function getEmptyArticle() {
+  return {
+    type: EMPTY_ARTICLE
   };
 }
 
@@ -48,6 +57,24 @@ export function changeArticle(article) {
 export function saveArticle(article) {
   let query = EDIT_QUERY;
   query = query.replace('#id', article.id);
+  query = query.replace('#author', article.author);
+  query = query.replace('#excerpt', article.excerpt.replace(/(\r\n|\n|\r)/gm, ''));
+  query = query.replace('#content', article.content.replace(/(\r\n|\n|\r)/gm, ''));
+  query = query.replace('#title', article.title);
+  query = query.replace('#published', article.published);
+  query = query.replace('#tags', JSON.stringify(article.tags));
+  return dispatch => {
+    request(query)
+        .then(response => {
+          dispatch({
+            type: SAVE_ARTICLE,
+            payload: response.data.articles });
+        });
+  };
+}
+
+export function createArticle(article) {
+  let query = CREATE_ARTICLE_QUERY;
   query = query.replace('#author', article.author);
   query = query.replace('#excerpt', article.excerpt.replace(/(\r\n|\n|\r)/gm, ''));
   query = query.replace('#content', article.content.replace(/(\r\n|\n|\r)/gm, ''));

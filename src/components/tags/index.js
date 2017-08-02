@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Tags = ({ children, disable, onRemoveClick }) =>
-  <li className="tag">
+const Tags = ({ children, disable, onRemoveClick, clave }) =>
+  <li className="tag" key={clave}>
     {children}
     {!disable &&
-      <span onClick={() => onRemoveClick(children)}>X</span>}
+      <div className="delete" onClick={() => onRemoveClick(children)}>X</div>}
   </li>;
 
 Tags.propTypes = {

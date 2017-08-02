@@ -15,7 +15,6 @@ class Home extends Component {
     this.props.getArticles();
   }
   render() {
-    console.log("home", this.props.articles);
     return (
       <div>
         <Articles articleList={this.props.articles} />

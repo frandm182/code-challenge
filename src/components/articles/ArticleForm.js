@@ -28,7 +28,7 @@ class ArticleForm extends Component {
     this.onKeyPress = this.onKeyPress.bind(this);
   }
 
-  componentWillMount() {   
+  componentWillMount() {  
       this.props.getArticle(this.props.match.params.id);      
   }
 
@@ -46,6 +46,7 @@ class ArticleForm extends Component {
     this.props.saveArticle(article);
     this.setState({editMode: !this.state.editMode});
     this.showMessage("Article updated");
+    setTimeout(() => this.props.history.push('/'),1000);
   }
 
   onChangeInput() {
@@ -76,7 +77,7 @@ class ArticleForm extends Component {
     query = query.replace('#id',this.props.article.id);
     request(query).then(response => {
       this.showMessage("Article removed");
-      
+      setTimeout(() => this.props.history.push('/'),1000);
     });
   }
 
@@ -112,8 +113,7 @@ class ArticleForm extends Component {
     
   render() {
     const tags = this.props.article && this.props.article.tags && this.props.article.tags.map((tag, i) =>
-            <ul className="tags"><Tags key={i}  onRemoveClick={this.onRemoveTag}>{tag}</Tags></ul>
-          );
+      <Tags key={i}  onRemoveClick={this.onRemoveTag}>{tag}</Tags>);
     return (this.props.article.author ?
       <article>
         <div>
@@ -137,13 +137,15 @@ class ArticleForm extends Component {
           <input type="checkbox" disabled={!this.state.editMode} className="checkbox" checked={this.props.article.published} onChange={this.onChangeInput}   ref="published" />
         </div>
         <div>
-          {tags}  
+          <ul className="tags">
+            {tags}  
+          </ul>
           {this.state.editMode ? 
               this.state.isCreating ? 
                 <input type="text"
                   onKeyPress={this.onKeyPress}
                 />
-              : <div onClick={this.onAddClick}>
+              : <div className="plusButton" onClick={this.onAddClick}>
                   +
                 </div> 
               : <div></div>  
@@ -151,8 +153,8 @@ class ArticleForm extends Component {
         </div>
         {
           this.state.editMode ? 
-          <div><span className="button update"  onClick={this.handleSubmit}>Update</span><span className="button update" onClick={this.onEdit}>Cancel</span></div> :
-          <div><span className="button" onClick={this.onEdit}>Edit</span></div>
+          <div className="buttons"><span className="button update"  onClick={this.handleSubmit}>Update</span><span className="button update" onClick={this.onEdit}>Cancel</span></div> :
+          <div><span className="button" onClick={this.onEdit}>Edit</span><span className="button" onClick={this.delete}>Delete</span></div>
         }    
         <span>{this.state.message}</span>
       </article> : <article />);

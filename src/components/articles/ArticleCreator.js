@@ -1,114 +1,147 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import request from '../../request';
-import { CREATE_QUERY } from '../../queries';
+import {findDOMNode} from 'react-dom';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {getArticle, updateArticle, saveArticle, changeArticle, getEmptyArticle, createArticle } from '../.././actions';
+import Tags from '../tags';
 
-class ArticleForm extends Component {
+class ArticleCreator extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      article: {author: '',title: '',content: '',excerpt: '',published: false},
       id: null,
-      editMode: {
-        author: true,
-        title: true,
-        excerpt: true,
-        content: true
-      },
-      message: ''
+      message: '',
+      isCreating: false
     };
-    this.setState({});
-    this.onChangeAuthor = this.onChangeAuthor.bind(this);
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onChangePublished = this.onChangePublished.bind(this);    
-    this.onChangeExcerpt = this.onChangeExcerpt.bind(this);
-    this.onChangeContent = this.onChangeContent.bind(this);
-    this.create = this.create.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.showMessage = this.showMessage.bind(this); 
+    this.onRemoveTag = this.onRemoveTag.bind(this);  
+    this.onAddClick = this.onAddClick.bind(this);
+    this.onChangeInput = this.onChangeInput.bind(this);
+    this.onKeyPress = this.onKeyPress.bind(this);
   }
 
-  
-  onChangeAuthor(e) {
-    let newArticle = this.state.article;
-    newArticle.author = e.target.value;
-    this.setState({ article: newArticle });
-  }
- 
-  onChangeTitle(e) {
-    let newArticle = this.state.article;
-    newArticle.title = e.target.value;
-    this.setState({ article: newArticle });
-  }
-  
-  onChangeExcerpt(e) {
-    let newArticle = this.state.article;
-    newArticle.excerpt = e.target.value;
-    this.setState({ article: newArticle });
-  }
-  
-  onChangeContent(e) {
-    let newArticle = this.state.article;
-    newArticle.content = e.target.value;
-    this.setState({ article: newArticle });
-  }
-    
-  onChangePublished(e) {
-    var newArticle = this.state.article;
-    newArticle.published = this.state.article.published ? false : true;
-    this.setState({ article: newArticle });
+  componentWillMount() {
+    this.props.getEmptyArticle();
   }
 
+  handleSubmit() {
+    const article = {
+      author: findDOMNode(this.refs.author).value,
+      title: findDOMNode(this.refs.title).value,
+      excerpt: findDOMNode(this.refs.excerpt).value,
+      content: findDOMNode(this.refs.content).value, 
+      published: this.refs.published.checked,
+      tags: this.props.article.tags ? this.props.article.tags : []   
+    };
+    this.props.createArticle(article);
+    this.setState({editMode: !this.state.editMode});
+    this.showMessage("Article created");
+     setTimeout(() => this.props.history.push('/'),1000);
+  } 
   showMessage(text) {
     this.setState({message: text})
     setTimeout(()=> this.setState({message: ''}),2000);
   }
-  create() {
-    let query = CREATE_QUERY;
-    query = query.replace('#author',this.state.article.author);
-    query = query.replace('#excerpt',this.state.article.excerpt.replace(/(\r\n|\n|\r)/gm,""));
-    query = query.replace('#content',this.state.article.content.replace(/(\r\n|\n|\r)/gm,""));
-    query = query.replace('#title',this.state.article.title);
-    query = query.replace('#published',this.state.article.published);
-     request(query).then(response => {
-      console.log("created",response.data);
-      this.showMessage("Article created");
-    });
+
+  onRemoveTag(text) {
+    const newArticle = Object.assign({}, this.props.article);
+    const index = newArticle.tags.findIndex(t => t === text);
+    const tags = newArticle.tags;
+    newArticle.tags = [...tags.slice(0, index), ...tags.slice(index + 1)];
+    this.props.changeArticle(newArticle);
+  }
+
+  onAddClick() {
+    this.setState(() => ({
+      isCreating: true
+    }));
   }
   
+  onKeyPress(event) {
+    if (event.which === 13) {
+      this.setState(() => ({
+        isCreating: false
+      }));
+      const newArticle = Object.assign({}, this.props.article);
+      
+      newArticle.author = this.props.article.author ? this.props.article.author : '';
+      newArticle.title = this.props.article.title ? this.props.article.title : '';
+      newArticle.excerpt = this.props.article.excerpt ? this.props.article.excerpt : '';
+      newArticle.content = this.props.article.content ? this.props.article.content : '';
+      newArticle.published = this.props.article.content ? true : false;
+      newArticle.tags = this.props.article.tags ? this.props.article.tags.concat(event.currentTarget.value) : [event.currentTarget.value];
+      this.props.changeArticle(newArticle);
+    }
+  }
+  onChangeInput() {
+    const article = {
+      id: this.props.article.id,
+      author: findDOMNode(this.refs.author).value,
+      title: findDOMNode(this.refs.title).value,
+      excerpt: findDOMNode(this.refs.excerpt).value,
+      content: findDOMNode(this.refs.content).value, 
+      published: this.refs.published.checked,
+      tags: this.props.article.tags  
+    };
+    this.props.changeArticle(article);
+  }
+
+  
   render() {
-    return (this.state.article ?
+    const tags = this.props.article && this.props.article.tags && this.props.article.tags.map((tag, i) =>
+      <Tags key={i}  onRemoveClick={this.onRemoveTag}>{tag}</Tags>);
+    return (this.props.article ?
       <article>
         <div>
           Author
-          <input type="text" value={this.state.article.author} onChange={this.onChangeAuthor} ref="author" />
+          <input type="text"  value={this.props.article.author} onChange={this.onChangeInput} ref="author"/>
         </div>
         <div>
           Title
-          <input type="text"  value={this.state.article.title} onChange={this.onChangeTitle} ref="title" />
+          <input type="text"  value={this.props.article.title} onChange={this.onChangeInput}  ref="title" />
         </div>
         <div>
           Excerpt
-          <textarea rows="6" cols="50"   value={this.state.article.excerpt} onChange={this.onChangeExcerpt} ref="excerpt" />
+          <textarea rows="6" cols="50"   value={this.props.article.excerpt} onChange={this.onChangeInput}   ref="excerpt" />
         </div>
         <div>
           Content
-          <textarea rows="6" cols="50"  value={this.state.article.content} onChange={this.onChangeContent}ref="content"  />
+          <textarea rows="6" cols="50"  value={this.props.article.content} onChange={this.onChangeInput}   ref="content" />
         </div>
          <div>
            Published
-          <input type="checkbox" className="checkbox" checked={this.state.article.published} onChange={this.onChangePublished} ref="published"  />
-        </div>        
-        <button className="button update" onClick={this.create}>Create</button>
+          <input type="checkbox"  className="checkbox" checked={this.props.article.published} onChange={this.onChangeInput}   ref="published" />
+        </div>
+        <div>
+          <ul className="tags">
+            {tags}  
+          </ul>
+          {
+              this.state.isCreating ? 
+                <input type="text"
+                  onKeyPress={this.onKeyPress}
+                />
+              : <div className="plusButton" onClick={this.onAddClick}>
+                  +
+                </div> 
+            }
+        </div>
+          <div><span className="button" onClick={this.handleSubmit}>Create</span></div>  
         <span>{this.state.message}</span>
       </article> : <article />);
   }
 }
 
-ArticleForm.PropTypes = {
+ArticleCreator.PropTypes = {
   match: PropTypes.objectOf,
   create: PropTypes.bool
 };
-ArticleForm.default = {
+ArticleCreator.default = {
   match: {},
   create: false
 };
-export default ArticleForm;
+const mapStateToProps = state => { return {article: state.articles.article}}
+const mapDispatchToProps = dispatch => bindActionCreators({getArticle,updateArticle,saveArticle,changeArticle,getEmptyArticle, createArticle },dispatch);
+export default connect(mapStateToProps, mapDispatchToProps)(ArticleCreator);
